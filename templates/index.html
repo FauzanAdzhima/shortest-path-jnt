@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shortest Path JNT</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+
+    <section class="bg-white dark:bg-gray-900">
+        <div class="pt-8 px-4 mx-auto max-w-screen-xl text-center">
+            <h1
+                class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+                Shortest Path JNT</h1>
+            <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">Shortest
+                Path dengan algoritma <i>Branch and Bound</i> dan <i>Cheapest Heuristic Insertion</i></p>
+        </div>
+    </section>
+
+    <section class="bg-white dark:bg-gray-900" id="last_section">
+        <div class="py-4 px-4 mx-auto max-w-screen-xl text-center flex justify-center">
+            <div class="flex flex-wrap justify-center">
+                <div class="mb-6 flex items-center">
+                    <label for="titik" class="block mr-2 text-sm font-medium text-gray-900 dark:text-white">Masukkan
+                        jumlah titik:</label>
+                    <input type="text" id="titik"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mx-auto text-center mr-2"
+                        placeholder="" required>
+                    <button type="submit" onclick="setTitik()"
+                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"><ion-icon
+                            name="send"></ion-icon></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function setTitik() {
+            const titik = $('#titik').val();
+
+            $.ajax({
+                url: "{{ url_for('set_titik') }}",
+                type: "POST",
+                data: titik,
+                success: function (response) {
+                    // console.log(response);
+
+                    var lastSection = $('<section class="bg-white dark:bg-gray-900 last_section"><div class="py-4 px-4 mx-auto max-w-screen-xl text-center flex justify-center"><div class="relative overflow-x-auto" id="set_titik_response"></div></div></section>');
+
+                    $('#last_section').after(lastSection);
+                    $('#last_section').removeAttr('id');
+                    $('.last_section').attr('id', 'last_section');
+                    $('#last_section').removeClass('last_section');
+
+                    $('#set_titik_response').html(response);
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+        }
+
+        function setNilaiPalindrom(row, column) {                        
+            const location = 'titik_(' + row + ', ' + column + ')';
+            const loc_val = document.getElementById(location).value;
+
+            document.getElementById('titik_(' + column + ', ' + row + ')').value = loc_val;
+        }
+
+        function setNilaiSimpul() {
+            var data_val = {};
+
+            for (var row = 1; row <= $('#titik').val(); row++) {
+                data_row = {};
+                for (var column = 1; column <= $('#titik').val(); column++) {                    
+                    var location = 'titik_(' + row + ', ' + column + ')';
+                    var loc_val = document.getElementById(location).value;
+                    data_row[column] = loc_val;
+                }
+                data_val[row] = data_row;
+            }
+            
+            $.ajax({
+                url: "{{ url_for('hitung_simpul') }}",
+                type: "POST",
+                data: JSON.stringify(data_val),
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+
+                    var lastSection = $('<section class="bg-white dark:bg-gray-900 last_section"><div class="py-4 px-4 mx-auto max-w-screen-xl text-center flex justify-center"><div class="relative overflow-x-auto" id="hitung_simpul_response"></div></div></section>');
+
+                    $('#last_section').after(lastSection);
+                    $('#last_section').removeAttr('id');
+                    $('.last_section').attr('id', 'last_section');
+                    $('#last_section').removeClass('last_section');
+
+                    $('#hitung_simpul_response').html(response);
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+            });
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>
